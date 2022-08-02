@@ -52,7 +52,6 @@
                             <v-col cols="12" sm="12" md="12">
                               <v-text-field
                                 v-model="editedItem.address"
-                                :rules="saupjaRules"
                                 label="서버 주소"
                                 required
                               ></v-text-field>
@@ -72,8 +71,7 @@
                           text
                           @click="save"
                           :disabled="
-                            editedItem.saupjaid === '' ||
-                              editedItem.saupjaname === ''
+                            editedItem.address === ''
                           "
                         >
                           Save
@@ -210,7 +208,7 @@ export default {
 
   computed: {
     formTitle () {
-      return 'Domain 정보 설정'
+      return 'oneM2M Server 정보 설정'
     }
   },
 
