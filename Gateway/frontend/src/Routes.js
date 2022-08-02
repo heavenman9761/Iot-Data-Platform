@@ -16,6 +16,7 @@ import Login from "@/pages/Login/Login";
 import Devices from "@/pages/Devices/Devices";
 import DeviceTypes from "@/pages/DeviceTypes/DeviceTypes";
 import DomainInfo from "@/pages/DomainInfo/DomainInfo";
+import Onem2mServer from "@/pages/Onem2mServer/Onem2mServer";
 
 Vue.use(Router);
 
@@ -46,6 +47,11 @@ export default new Router({
         path: 'domaininfo',
         name: 'DomainInfo',
         component: DomainInfo
+      },
+      {
+        path: 'onem2mserver',
+        name: 'Onem2mServer',
+        component: Onem2mServer
       },
       {
         path: 'dashboard',

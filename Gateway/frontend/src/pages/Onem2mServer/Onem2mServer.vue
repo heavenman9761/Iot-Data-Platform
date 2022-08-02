@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="tables-basic">
-      <h1 class="page-title mt-10 mb-6">Domain 정보 설정</h1>
+      <h1 class="page-title mt-10 mb-6">OneM2M Server 설정</h1>
       <v-row>
         <v-col cols="12">
           <v-card class="employee-list mb-1">
@@ -51,46 +51,14 @@
                           <v-row>
                             <v-col cols="12" sm="12" md="12">
                               <v-text-field
-                                v-model="editedItem.saupjaid"
+                                v-model="editedItem.address"
                                 :rules="saupjaRules"
-                                label="사업자 번호"
+                                label="서버 주소"
                                 required
                               ></v-text-field>
                             </v-col>
                           </v-row>
-                          <v-row>
-                            <v-col cols="12" sm="12" md="12">
-                              <v-text-field
-                                v-model="editedItem.saupjaname"
-                                label="사업자명"
-                                required
-                              ></v-text-field>
-                            </v-col>
-                          </v-row>
-                          <v-row>
-                            <v-col cols="12" sm="12" md="12">
-                              <v-text-field
-                                v-model="editedItem.addr"
-                                label="주소"
-                              ></v-text-field>
-                            </v-col>
-                          </v-row>
-                          <v-row>
-                            <v-col cols="12" sm="12" md="12">
-                              <v-text-field
-                                v-model="editedItem.tel"
-                                label="전화번호"
-                              ></v-text-field>
-                            </v-col>
-                          </v-row>
-                          <v-row>
-                            <v-col cols="12" sm="12" md="12">
-                              <v-text-field
-                                v-model="editedItem.fax"
-                                label="팩스번호"
-                              ></v-text-field>
-                            </v-col>
-                          </v-row>
+                          
                         </v-container>
                       </v-card-text>
 
@@ -138,46 +106,27 @@ export default {
   name: 'DomainInfo',
   data () {
     return {
-      saupjaRules: [
-        v => !!v || 'Saupja ID is required',
-        v =>
-          /([0-9]{3})-?([0-9]{2})-?([0-9]{5})/.test(v) ||
-          'Saupja ID must be valid'
-      ],
       dialog: false,
       dialogDelete: false,
-      deviceTypes: [],
       items: [],
       editedItem: {
         id: '',
-        saupjaid: '',
-        saupjaname: '',
-        addr: '',
-        tel: '',
-        fax:''
+        address: '',
       },
       defaultItem: {
         id: '',
-        devicetype: '',
-        name: '',
         address: '',
-        datakeys: '',
-        onom2mkeys: ''
       },
       editedIndex: -1,
       selected: [],
       search: '',
       headers: [
         {
-          text: '사업자번호',
+          text: '서버 주소',
           align: 'start',
           sortable: true,
-          value: 'saupjaid'
+          value: 'address'
         },
-        { text: '사업자명', value: 'saupjaname' },
-        { text: '주소', value: 'addr' },
-        { text: '전화번호', value: 'tel' },
-        { text: '팩스', value: 'fax' },
         { text: 'Actions', value: 'actions', sortable: false }
       ]
     }
@@ -188,7 +137,7 @@ export default {
   methods: {
     ...mapActions([ 'timeoutSession' ]),
     getItems () {
-      const path = `/api/domaininfo`
+      const path = `/api/onem2mserver`
       axios
         .get(path)
         .then(res => {
@@ -202,7 +151,7 @@ export default {
     },
 
     updateItem (obj) {
-      const path = `/api/domaininfo/setdomain`
+      const path = `/api/onem2mserver/setonem2mserver`
       axios
         .post(path, obj)
         .then(res => {
@@ -251,11 +200,7 @@ export default {
     save () {
       const obj = {
         id: this.editedItem.id,
-        saupjaid: this.editedItem.saupjaid,
-        saupjaname: this.editedItem.saupjaname,
-        addr: this.editedItem.addr,
-        tel: this.editedItem.tel,
-        fax: this.editedItem.fax
+        address: this.editedItem.address,
       }
       console.log(obj)
       this.updateItem(obj)

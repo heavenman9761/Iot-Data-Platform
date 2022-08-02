@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', isLoggedIn, async (req, res, next) => {
   try {
         const domainInfo = await DomainInfo.findAll({});
-        res.json(domainInfo);
+        res.status(200).json(domainInfo);
   } catch (err) {
         console.error(err);
         next(err);
@@ -35,7 +35,7 @@ router.post('/setdomain', isLoggedIn, async (req, res, next) => {
                 });
                 console.log(domainInfo);
                 gValue.setDomainInfo();
-                res.status(201).json(domainInfo);
+                res.status(200).json(domainInfo);
             } catch(err) {
                 console.error(err);
                 next(err);
@@ -51,7 +51,7 @@ router.post('/setdomain', isLoggedIn, async (req, res, next) => {
                 });
                 console.log(domainInfo);
                 gValue.setDomainInfo();
-                res.status(201).json(domainInfo);
+                res.status(200).json(domainInfo);
           
             } catch (err) {
                 console.error(err);

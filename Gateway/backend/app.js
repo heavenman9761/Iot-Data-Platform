@@ -19,6 +19,7 @@ const authRouter = require('./routes/auth');
 const deviceDataRouter = require('./routes/devicedatas');
 const deviceTypeRouter = require('./routes/devicetypes');
 const domainInfoRouter = require('./routes/domaininfos');
+const onem2mServerRouter = require('./routes/onem2mserver')
 
 const passportConfig = require('./passport');
 const gValue = require('./globalv');
@@ -74,6 +75,7 @@ app.use('/api/devices', devicesRouter);
 app.use('/api/devicedata', deviceDataRouter);
 app.use('/api/devicetypes', deviceTypeRouter);
 app.use('/api/domaininfo', domainInfoRouter);
+app.use('/api/onem2mserver', onem2mServerRouter);
 // mongodbconnect();
 
 // catch 404 and forward to error handler
