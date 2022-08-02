@@ -5,5 +5,8 @@
 
 ## MySql 사용자 추가
 CREATE user 'iot'@'localhost' IDENTIFIED BY 'Sct91234!'; 
+
 GRANT ALL PRIVILEGES ON *.* TO 'iot'@'localhost'; 
+
 grant all privileges on gateway.* to 'iot'@'localhost'; 
+
