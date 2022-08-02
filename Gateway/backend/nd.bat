@@ -1,0 +1,1 @@
+nodemon --watch ./ ./bin/www
