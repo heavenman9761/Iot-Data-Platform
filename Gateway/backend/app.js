@@ -55,6 +55,7 @@ sequelize.sync({ force: false })
     gValue.setDomainInfo();
     gValue.setDeviceTypes();
     gValue.setDeviceAddrs();
+    gValue.setOneM2MInfo();
     console.log('데이타베이스 연결 성공');
   })
   .catch((err) => {

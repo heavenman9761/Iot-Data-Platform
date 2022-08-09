@@ -31,6 +31,15 @@ router.post('/data', async (req, res, next) => {
                                 }
                             }
                         });
+                      
+                      const onem2mKeys = value.onem2mkeys;
+                      const onem2mKeyList = onem2mKeys.split(';');
+                      const oneM2MInfo = gValue.getOneM2MInfo();
+                      onem2mKeyList.forEach(async (item, index, arr) => {
+                        if (Object.keys(data).includes(item)) {
+                          
+                        }
+                      });
                     }
                 });
             } catch (err) {

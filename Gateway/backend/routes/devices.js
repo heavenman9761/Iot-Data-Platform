@@ -21,7 +21,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
 });
 
 router.post('/addDevice', isLoggedIn, async (req, res, next) => {
-  const { devicetype, name, address, datakeys, onem2mkeys } = req.body;
+  const { devicetype, name, address, datakeys, onem2mkeys, ae_name, ae_nickname } = req.body;
     try {
       const device = await Device.create({
         devicetype: devicetype,
@@ -29,7 +29,7 @@ router.post('/addDevice', isLoggedIn, async (req, res, next) => {
         address: address,
         datakeys: datakeys,
         onem2mkeys: onem2mkeys,
-        owner: req.user.id
+        ae_name: ae_name,
       });
       gValue.setDeviceAddrs();
       res.status(200).json(device);
@@ -42,13 +42,14 @@ router.post('/addDevice', isLoggedIn, async (req, res, next) => {
 
 router.put('/editDevice', isLoggedIn, async (req, res, next) => {
   try {
-    const { id, devicetype, name, address, datakeys, onem2mkeys } = req.body;
+    const { id, devicetype, name, address, datakeys, onem2mkeys, ae_name } = req.body;
     const device = await Device.update({
       devicetype: devicetype,
       name: name,
       address: address,
       datakeys: datakeys,
-      onem2mkeys: onem2mkeys
+      onem2mkeys: onem2mkeys,
+      ae_name: ae_name,
     }, {
       where: { id: id }
     });

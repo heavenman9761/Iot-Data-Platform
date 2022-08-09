@@ -28,7 +28,7 @@ module.exports = class Device extends Sequelize.Model {
                 type: Sequelize.STRING(100),
                 allowNull: true,
             },
-            owner: {
+            ae_name: {
                 type: Sequelize.STRING(40),
                 allowNull: false,
             },

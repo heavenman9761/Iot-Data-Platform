@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="tables-basic">
-      <h1 class="page-title mt-10 mb-6">OneM2M Server 설정</h1>
+      <h1 class="page-title mt-10 mb-6">oneM2M Server 설정</h1>
       <v-row>
         <v-col cols="12">
           <v-card class="employee-list mb-1">
@@ -51,8 +51,36 @@
                           <v-row>
                             <v-col cols="12" sm="12" md="12">
                               <v-text-field
-                                v-model="editedItem.address"
+                                v-model="editedItem.host"
                                 label="서버 주소"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.port"
+                                :rules="numberRules"
+                                label="포트"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.name"
+                                label="Name"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.cseid"
+                                label="CSE ID"
                                 required
                               ></v-text-field>
                             </v-col>
@@ -71,7 +99,7 @@
                           text
                           @click="save"
                           :disabled="
-                            editedItem.address === ''
+                            editedItem.host === '' || editedItem.port === '' || editedItem.name === '' || editedItem.cseid === ''
                           "
                         >
                           Save
@@ -104,16 +132,28 @@ export default {
   name: 'DomainInfo',
   data () {
     return {
+      numberRules: [
+        v => !!v || 'Port Number is required',
+        v =>
+          /^[0-9]+$/.test(v) ||
+          'Port Number must be valid'
+      ],
       dialog: false,
       dialogDelete: false,
       items: [],
       editedItem: {
         id: '',
-        address: '',
+        host: '',
+        port: '',
+        name: '',
+        cseid: '',
       },
       defaultItem: {
         id: '',
-        address: '',
+        host: '',
+        port: '',
+        name: '',
+        cseid: '',
       },
       editedIndex: -1,
       selected: [],
@@ -123,8 +163,11 @@ export default {
           text: '서버 주소',
           align: 'start',
           sortable: true,
-          value: 'address'
+          value: 'host'
         },
+        { text: 'Port', value: 'port', sortable: false },
+        { text: 'Name', value: 'name', sortable: false },
+        { text: 'CSE ID', value: 'cseid', sortable: false },
         { text: 'Actions', value: 'actions', sortable: false }
       ]
     }
@@ -198,7 +241,10 @@ export default {
     save () {
       const obj = {
         id: this.editedItem.id,
-        address: this.editedItem.address,
+        host: this.editedItem.host,
+        port: this.editedItem.port,
+        name: this.editedItem.name,
+        cseid: this.editedItem.cseid,
       }
       console.log(obj)
       this.updateItem(obj)

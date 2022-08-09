@@ -46,6 +46,9 @@
                           <v-form>
                             <v-col>
                               <v-text-field
+                                  light
+                                  id="email"
+                                  ref="email"
                                   v-model="email"
                                   :rules="emailRules"
                                   value=""

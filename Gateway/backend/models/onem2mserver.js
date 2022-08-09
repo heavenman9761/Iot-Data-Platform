@@ -3,12 +3,27 @@ const Sequelize = require('sequelize');
 module.exports = class Onem2mServer extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            address: {
-                type: Sequelize.STRING(50),
-                require: true,
-                unique: true,
-                allowNull: false,
+            host: {
+              type: Sequelize.STRING(50),
+              require: true,
+              unique: true,
+              allowNull: false,
             },
+            port: {
+              type: Sequelize.INTEGER,
+              require: true,
+              allowNull: false,
+            },
+            name: {
+              type: Sequelize.STRING(50),
+              require: true,
+              allowNull: false,
+            },
+            cseid: {
+              type: Sequelize.STRING(50),
+              require: true,
+              allowNull: false,
+          },
         }, {
             sequelize,
             timestamps: true,//createdAt, updateAt, deletedAt 칼럼도 생성됨

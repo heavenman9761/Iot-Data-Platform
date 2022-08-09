@@ -114,6 +114,14 @@
                               ></v-text-field>
                             </v-col>
                           </v-row>
+                          <v-row>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.ae_name"
+                                label="oneM2M Name"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
                         </v-container>
                       </v-card-text>
 
@@ -207,7 +215,8 @@ export default {
         name: '',
         address: '',
         datakeys: '',
-        onom2mkeys: ''
+        onom2mkeys: '',
+        ae_name: '',
       },
       defaultItem: {
         id: '',
@@ -215,7 +224,8 @@ export default {
         name: '',
         address: '',
         datakeys: '',
-        onom2mkeys: ''
+        onom2mkeys: '',
+        ae_name: '',
       },
       editedIndex: -1,
       selected: [],
@@ -231,6 +241,7 @@ export default {
         { text: 'MacAddress', value: 'address' },
         { text: 'Data Keys', value: 'datakeys' },
         { text: 'oneM2M Keys', value: 'onem2mkeys' },
+        { text: 'oneM2M Name', value: 'ae_name' },
         { text: 'Actions', value: 'actions', sortable: false }
       ]
     }
@@ -361,7 +372,8 @@ export default {
           name: this.editedItem.name,
           address: this.editedItem.address,
           datakeys: this.editedItem.datakeys,
-          onem2mkeys: this.editedItem.onem2mkeys
+          onem2mkeys: this.editedItem.onem2mkeys,
+          ae_name: this.editedItem.ae_name
         }
         this.updateItem(obj)
       } else {
@@ -371,7 +383,8 @@ export default {
           name: this.editedItem.name,
           address: this.editedItem.address,
           datakeys: this.editedItem.datakeys,
-          onem2mkeys: this.editedItem.onem2mkeys
+          onem2mkeys: this.editedItem.onem2mkeys,
+          ae_name: this.editedItem.ae_name
         }
         this.addItem(obj)
       }
