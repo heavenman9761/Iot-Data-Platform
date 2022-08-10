@@ -83,7 +83,8 @@ async function setDeviceAddrs(async) {
         const d = {
           addr: device[index].dataValues.address,
           datakeys: device[index].dataValues.datakeys,
-          onem2mkeys: device[index].dataValues.onem2mkeys
+          onem2mkeys: device[index].dataValues.onem2mkeys,
+          ae_name: device[index].dataValues.ae_name,
         }
         deviceAddrs.push(d);
       });
