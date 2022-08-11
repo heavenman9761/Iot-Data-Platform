@@ -54,13 +54,23 @@ sequelize.sync({ force: false })
   .then(() => {
     gValue.setDomainInfo();
     gValue.setDeviceTypes();
-    gValue.setDeviceAddrs();
+    gValue.setDeviceInfos();
     gValue.setOneM2MInfo();
     console.log('데이타베이스 연결 성공');
   })
   .catch((err) => {
     console.error(err);
   });
+
+setTimeout(() => {
+  console.log('timeout beyond time');
+  const deviceInfos = gValue.getDeviceInfos()
+  deviceInfos.forEach((deviceInfo, index, item) => {
+    if (deviceInfo.ae_name != "") {
+      gValue.createAE(deviceInfo.ae_name);
+    }
+  })
+}, 1000);
 
 app.use(logger('dev'));
 app.use(express.json());

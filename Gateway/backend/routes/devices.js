@@ -21,7 +21,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
 });
 
 router.post('/addDevice', isLoggedIn, async (req, res, next) => {
-  const { devicetype, name, address, datakeys, onem2mkeys, ae_name, ae_nickname } = req.body;
+  const { devicetype, name, address, datakeys, onem2mkeys, ae_name } = req.body;
     try {
       const device = await Device.create({
         devicetype: devicetype,
@@ -31,7 +31,8 @@ router.post('/addDevice', isLoggedIn, async (req, res, next) => {
         onem2mkeys: onem2mkeys,
         ae_name: ae_name,
       });
-      gValue.setDeviceAddrs();
+      gValue.setDeviceInfos();
+      gValue.createAE(device.ae_name);
       res.status(200).json(device);
 
     } catch (err) {
@@ -53,7 +54,8 @@ router.put('/editDevice', isLoggedIn, async (req, res, next) => {
     }, {
       where: { id: id }
     });
-    gValue.setDeviceAddrs();
+    gValue.setDeviceInfos();
+    gValue.resetAE(device.ae_name);
     res.status(200).json(device);
 
   } catch (err) {
@@ -66,7 +68,8 @@ router.delete('/remove/:deviceID', isLoggedIn, async (req, res, next) => {
   const id = req.params.deviceID;
   try {
     const device = await Device.destroy({ where: { id: id } });
-    gValue.setDeviceAddrs();
+    gValue.setDeviceInfos();
+    gValue.deleteAE(device.ae_name);
     res.status(200).json(device);
   } catch (err) {
     console.error(err);

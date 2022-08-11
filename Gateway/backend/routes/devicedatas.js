@@ -10,9 +10,9 @@ router.post('/data', async (req, res, next) => {
         const datas = req.body.devices;
         datas.forEach(async (data) => {
             try {
-                gValue.getDeviceAddrs().forEach((value, index, array) => {
-                    if (value.addr === data.id) {
-                        const dataKeys = value.datakeys;
+                gValue.getDeviceInfos().forEach((deviceInfo, index, array) => {
+                    if (deviceInfo.addr === data.id) {
+                        const dataKeys = deviceInfo.datakeys;
                         const dataKeyList = dataKeys.split(';');
                         dataKeyList.forEach(async (item, index, arr) => {
                             if (Object.keys(data).includes(item)) {
@@ -32,14 +32,20 @@ router.post('/data', async (req, res, next) => {
                             }
                         });
                       
-                      const onem2mKeys = value.onem2mkeys;
+                      const onem2mKeys = deviceInfo.onem2mkeys;
                       const onem2mKeyList = onem2mKeys.split(';');
-                      const oneM2MInfo = gValue.getOneM2MInfo();
+                      var obj = {};
+
                       onem2mKeyList.forEach(async (item, index, arr) => {
                         if (Object.keys(data).includes(item)) {
-                          
+                          // 
+                          // console.log(item, data[item]);
+                          obj[item] = data[item];
                         }
                       });
+                      if (JSON.stringify(obj) != '{}') {
+                        gValue.createContentInstance(deviceInfo.ae_name, JSON.stringify(obj))
+                      }
                     }
                 });
             } catch (err) {
