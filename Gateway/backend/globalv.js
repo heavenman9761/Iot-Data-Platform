@@ -133,15 +133,6 @@ function createAE(name) {
 
     var rr = "false";
     var poa = "";
-    // console.log("##############");
-    // console.log(templates);
-    // console.log(templates[typeIndex]);
-    // if(templates[typeIndex].stream=="down"){
-    // 	options.json["m2m:ae"]["rr"] = true;
-    // 	options.json["m2m:ae"] = Object.assign(options.json["m2m:ae"], {"poa":["http://" + config.app.ip + ":" + config.app.port + "/" + name]});
-    // 	listen(name,typeIndex)
-    // }
-
     console.log(options.method + " " + options.uri);
     console.log(options.json);
 
@@ -209,7 +200,30 @@ function resetAE(name) {
 
 function deleteAE(name) {
   if (name != '') {
+    conf = getOneM2MInfo();
+    var options = {
+      uri: conf.cseURL + "/" + conf.cse_name + "/" + name,
+      method: "DELETE",
+      headers: {
+        "X-M2M-Origin": "S"+name,
+        "X-M2M-RI": "req"+requestNr,
+      }
+    };
+  
+    if(conf.cseRelease != "1") {
+      options.headers = Object.assign(options.headers, {"X-M2M-RVI":conf.cseRelease});
+    }
     
+    requestNr += 1;
+    request(options, function (error, response, body) {
+      if(error){
+        console.log(error);
+      }else{			
+        console.log(response.statusCode);
+        console.log(body);
+  
+      }
+    });
   }
 }
 
