@@ -19,7 +19,7 @@ async function setOneM2MInfo(async) {
   try {
     onem2mInfo = null;
     const item = await Onem2mServer.findAll({});
-    if (item) {
+    if (item.length > 0) {
       onem2mInfo = {
         cse_host: item[0].dataValues.host,
         cse_port: item[0].dataValues.port,
@@ -48,7 +48,7 @@ async function setDomainInfo(async) {
     saupjaId = '';
     saupjaName = '';
     const domainInfo = await DomainInfo.findAll({});
-    if (domainInfo) {
+    if (domainInfo.length > 0) {
       saupjaId = domainInfo[0].dataValues.saupjaid;
       saupjaName = domainInfo[0].dataValues.saupjaname;
     }
@@ -91,6 +91,7 @@ async function setDeviceInfos(async) {
     if (device) {
       device.forEach((value, index, item) => {
         const d = {
+          name: device[index].dataValues.name,
           addr: device[index].dataValues.address,
           datakeys: device[index].dataValues.datakeys,
           onem2mkeys: device[index].dataValues.onem2mkeys,
@@ -112,56 +113,58 @@ function getDeviceInfos() {
 
 function createAE(name) {
   if (name != '') {
-    console.log("createAE()");
     conf = getOneM2MInfo();
-    var options = {
-      uri: conf.cse_URL + "/" + conf.cse_name,
-      method: "POST",
-      headers: {
-        "X-M2M-Origin": "S" + name,
-        "X-M2M-RI": "req" + requestNr,
-        "Content-Type": "application/vnd.onem2m-res+json;ty=2"
-      },
-      json: {
-        "m2m:ae": {
-          "rn": name,
-          "api": conf.api,
-          "rr": false
-        }
-      }
-    };
-
-    var rr = "false";
-    var poa = "";
-    console.log(options.method + " " + options.uri);
-    console.log(options.json);
-
-    if (conf.cseRelease != "1") {
-      options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
-      options.json["m2m:ae"] = Object.assign(options.json["m2m:ae"], { "srv": ["2a"] });
-    }
-
-    requestNr += 1;
-    request(options, function (err, resp, body) {
-      if (err) {
-        console.log("createAE() : " + err);
-      } else {
-        console.log("createAE() :" + resp.statusCode);
-        if (resp.statusCode == 409) {
-          console.log("createAE() [RESPONSE] - failure");
-          resetAE(name);
-        } else {
-          console.log("createAE() [RESPONSE] - success:" + resp.statusCode);
-          if (conf.acp_required) {
-            console.log("createAccessControlPolicy()")
-            //createAccessControlPolicy(name);
-          } else {
-            console.log("createDataContainer()")
-            createDataContainer(name);
+    if (conf) {
+      console.log("createAE()");
+      var options = {
+        uri: conf.cse_URL + "/" + conf.cse_name,
+        method: "POST",
+        headers: {
+          "X-M2M-Origin": "S" + name,
+          "X-M2M-RI": "req" + requestNr,
+          "Content-Type": "application/vnd.onem2m-res+json;ty=2"
+        },
+        json: {
+          "m2m:ae": {
+            "rn": name,
+            "api": conf.api,
+            "rr": false
           }
         }
+      };
+
+      var rr = "false";
+      var poa = "";
+      console.log(options.method + " " + options.uri);
+      console.log(options.json);
+
+      if (conf.cseRelease != "1") {
+        options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
+        options.json["m2m:ae"] = Object.assign(options.json["m2m:ae"], { "srv": ["2a"] });
       }
-    });
+
+      requestNr += 1;
+      request(options, function (err, resp, body) {
+        if (err) {
+          console.log("createAE() : " + err);
+        } else {
+          console.log("createAE() :" + resp.statusCode);
+          if (resp.statusCode == 409) {
+            console.log("createAE() [RESPONSE] - failure");
+            resetAE(name);
+          } else {
+            console.log("createAE() [RESPONSE] - success:" + resp.statusCode);
+            if (conf.acp_required) {
+              console.log("createAccessControlPolicy()")
+              //createAccessControlPolicy(name);
+            } else {
+              console.log("createDataContainer()")
+              createDataContainer(name);
+            }
+          }
+        }
+      });
+    }
   }
 }
 
@@ -169,61 +172,65 @@ function resetAE(name) {
   if (name != '') {
     console.log("resetAE()");
     conf = getOneM2MInfo();
-    var options = {
-      uri: conf.cse_URL + "/" + conf.cse_name + "/" + name,
-      method: "DELETE",
-      headers: {
-        "X-M2M-Origin": "S" + name,
-        "X-M2M-RI": "req" + requestNr,
-      }
-    };
-    console.log(options);
+    if (conf) {
+      var options = {
+        uri: conf.cse_URL + "/" + conf.cse_name + "/" + name,
+        method: "DELETE",
+        headers: {
+          "X-M2M-Origin": "S" + name,
+          "X-M2M-RI": "req" + requestNr,
+        }
+      };
+      console.log(options);
 
-    if (conf.cseRelease != "1") {
-      options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
+      if (conf.cseRelease != "1") {
+        options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
+      }
+
+      requestNr += 1;
+      request(options, function (error, response, body) {
+        if (error) {
+          console.log("resetAE() [RESPONSE] - failure");
+          console.log(error);
+        } else {
+          console.log("resetAE() [RESPONSE] - success");
+          console.log(response.statusCode);
+          console.log(body);
+          createAE(name);
+        }
+      });
     }
-
-    requestNr += 1;
-    request(options, function (error, response, body) {
-      if (error) {
-        console.log("resetAE() [RESPONSE] - failure");
-        console.log(error);
-      } else {
-        console.log("resetAE() [RESPONSE] - success");
-        console.log(response.statusCode);
-        console.log(body);
-        createAE(name);
-      }
-    });
   }
 }
 
 function deleteAE(name) {
   if (name != '') {
     conf = getOneM2MInfo();
-    var options = {
-      uri: conf.cseURL + "/" + conf.cse_name + "/" + name,
-      method: "DELETE",
-      headers: {
-        "X-M2M-Origin": "S"+name,
-        "X-M2M-RI": "req"+requestNr,
-      }
-    };
-  
-    if(conf.cseRelease != "1") {
-      options.headers = Object.assign(options.headers, {"X-M2M-RVI":conf.cseRelease});
-    }
+    if (conf) {
+      var options = {
+        uri: conf.cseURL + "/" + conf.cse_name + "/" + name,
+        method: "DELETE",
+        headers: {
+          "X-M2M-Origin": "S" + name,
+          "X-M2M-RI": "req" + requestNr,
+        }
+      };
     
-    requestNr += 1;
-    request(options, function (error, response, body) {
-      if(error){
-        console.log(error);
-      }else{			
-        console.log(response.statusCode);
-        console.log(body);
-  
+      if (conf.cseRelease != "1") {
+        options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
       }
-    });
+      
+      requestNr += 1;
+      request(options, function (error, response, body) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(response.statusCode);
+          console.log(body);
+    
+        }
+      });
+    }
   }
 }
 
@@ -231,42 +238,44 @@ function createDataContainer(name) {
   if (name != '') {
     console.log("createDataContainer()");
     conf = getOneM2MInfo();
-    var options = {
-      uri: conf.cse_URL + "/" + conf.cse_name + "/" + name,
-      method: "POST",
-      headers: {
-        "X-M2M-Origin": "S" + name,
-        "X-M2M-RI": "req" + requestNr,
-        "Content-Type": "application/json;ty=3"
-      },
-      json: {
-        "m2m:cnt": {
-          "rn": "DATA",
-          "mni": 10000
+    if (conf) {
+      var options = {
+        uri: conf.cse_URL + "/" + conf.cse_name + "/" + name,
+        method: "POST",
+        headers: {
+          "X-M2M-Origin": "S" + name,
+          "X-M2M-RI": "req" + requestNr,
+          "Content-Type": "application/json;ty=3"
+        },
+        json: {
+          "m2m:cnt": {
+            "rn": "DATA",
+            "mni": 10000
+          }
         }
+      };
+
+      options.json["m2m:cnt"] = Object.assign(options.json["m2m:cnt"], {});
+
+      console.log(options.method + " " + options.uri);
+      console.log(options.json);
+
+      if (conf.cseRelease != "1") {
+        options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
       }
-    };
 
-    options.json["m2m:cnt"] = Object.assign(options.json["m2m:cnt"], {});
-
-    console.log(options.method + " " + options.uri);
-    console.log(options.json);
-
-    if (conf.cseRelease != "1") {
-      options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
+      requestNr += 1;
+      request(options, function (error, response, body) {
+        if (error) {
+          console.log("createDataContainer() [RESPONSE] - failure", error);
+          conf.ctnPrepared = false;
+        } else {
+          console.log("createDataContainer() [RESPONSE] - success", response.statusCode);
+          console.log(body);
+          conf.ctnPrepared = true;
+        }
+      });
     }
-
-    requestNr += 1;
-    request(options, function (error, response, body) {
-      if (error) {
-        console.log("createDataContainer() [RESPONSE] - failure", error);
-        conf.ctnPrepared = false;
-      } else {
-        console.log("createDataContainer() [RESPONSE] - success", response.statusCode);
-        console.log(body);
-        conf.ctnPrepared = true;
-      }
-    });
   }
 }
 
@@ -274,37 +283,39 @@ function createContentInstance(name, data) {
   if (name != '') {
     console.log("createContentInstance()", name, data);
     conf = getOneM2MInfo();
-    var options = {
-      uri: conf.cse_URL + "/" + conf.cse_name + "/" + name + "/DATA",
-      method: "POST",
-      headers: {
-        "X-M2M-Origin": "S" + name,
-        "X-M2M-RI": "req" + requestNr,
-        "Content-Type": "application/json;ty=4"
-      },
-      json: {
-        "m2m:cin": {
-          "con": data
+    if (conf) {
+      var options = {
+        uri: conf.cse_URL + "/" + conf.cse_name + "/" + name + "/DATA",
+        method: "POST",
+        headers: {
+          "X-M2M-Origin": "S" + name,
+          "X-M2M-RI": "req" + requestNr,
+          "Content-Type": "application/json;ty=4"
+        },
+        json: {
+          "m2m:cin": {
+            "con": data
+          }
         }
+      };
+
+      console.log(options.method + " " + options.uri);
+      console.log(options.json);
+
+      if (conf.cseRelease != "1") {
+        options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
       }
-    };
 
-    console.log(options.method + " " + options.uri);
-    console.log(options.json);
-
-    if (conf.cseRelease != "1") {
-      options.headers = Object.assign(options.headers, { "X-M2M-RVI": conf.cseRelease });
+      requestNr += 1;
+      request(options, function (error, response, body) {
+        if (error) {
+          console.log("createContentInstance() - failure", error);
+        } else {
+          console.log("createContentInstance() - success", response.statusCode);
+          console.log(body);
+        }
+      });
     }
-
-    requestNr += 1;
-    request(options, function (error, response, body) {
-      if (error) {
-        console.log("createContentInstance() - failure", error);
-      } else {
-        console.log("createContentInstance() - success", response.statusCode);
-        console.log(body);
-      }
-    });
   }
 }
 

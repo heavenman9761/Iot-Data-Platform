@@ -4,8 +4,9 @@ module.exports = class DeviceType extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
             devicetype: {
-                type: Sequelize.STRING(40),
-                allowNull: true,
+            type: Sequelize.STRING(40),
+            reuire: true,
+              unique: true,
             }
         }, {
             sequelize,

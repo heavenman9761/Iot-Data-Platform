@@ -33,7 +33,7 @@ app.use(require('connect-history-api-fallback')());
 passportConfig();
 app.use(session({
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   secret: process.env.COOKIE_SECRET,
   cookie: {
     httpOnly: true,
@@ -63,14 +63,15 @@ sequelize.sync({ force: false })
   });
 
 setTimeout(() => {
-  console.log('timeout beyond time');
   const deviceInfos = gValue.getDeviceInfos()
-  deviceInfos.forEach((deviceInfo, index, item) => {
-    if (deviceInfo.ae_name != "") {
-      gValue.createAE(deviceInfo.ae_name);
-    }
-  })
-}, 1000);
+  if (deviceInfos) {
+    deviceInfos.forEach((deviceInfo, index, item) => {
+      if (deviceInfo.ae_name != "") {
+        gValue.createAE(deviceInfo.ae_name);
+      }
+    })
+  }
+}, 2000);
 
 app.use(logger('dev'));
 app.use(express.json());

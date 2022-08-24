@@ -68,10 +68,31 @@
                             </v-col>
                           </v-row>
                           <v-row>
+                            <v-col cols="3" sm="3" md="3">
+                              <v-text-field
+                                v-model="editedItem.postcode"
+                                label="우편번호"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="3" sm="3" md="3">
+                              <v-btn color="blue darken-1" text @click="execDaumPostcode()">
+                                주소찾기
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+                          <v-row>
                             <v-col cols="12" sm="12" md="12">
                               <v-text-field
                                 v-model="editedItem.addr"
                                 label="주소"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.extraAddr"
+                                label="상세주소"
                               ></v-text-field>
                             </v-col>
                           </v-row>
@@ -96,6 +117,7 @@
 
                       <v-card-actions>
                         <v-spacer></v-spacer>
+                        
                         <v-btn color="blue darken-1" text @click="close">
                           Cancel
                         </v-btn>
@@ -152,17 +174,21 @@ export default {
         id: '',
         saupjaid: '',
         saupjaname: '',
-        addr: '',
+        postcode: '',
+        addr:'',
+        extraAddr:'',
         tel: '',
-        fax:''
+        fax: '',
       },
       defaultItem: {
         id: '',
-        devicetype: '',
-        name: '',
-        address: '',
-        datakeys: '',
-        onom2mkeys: ''
+        saupjaid: '',
+        saupjaname: '',
+        postcode: '',
+        addr:'',
+        extraAddr:'',
+        tel: '',
+        fax: '',
       },
       editedIndex: -1,
       selected: [],
@@ -179,13 +205,56 @@ export default {
         { text: '전화번호', value: 'tel' },
         { text: '팩스', value: 'fax' },
         { text: 'Actions', value: 'actions', sortable: false }
-      ]
+      ],
     }
   },
   created () {
     this.getItems()
   },
   methods: {
+    execDaumPostcode() {
+      console.log("execDaumPostcode()")
+      new window.daum.Postcode({
+        oncomplete: (data) => {
+          if (this.editedItem.extraAddr !== "") {
+            this.editedItem.extraAddr = "";
+          }
+          if (data.userSelectedType === "R") {
+            // 사용자가 도로명 주소를 선택했을 경우
+            this.editedItem.addr = data.roadAddress;
+          } else {
+            // 사용자가 지번 주소를 선택했을 경우(J)
+            this.editedItem.addr = data.jibunAddress;
+          }
+ 
+          // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+          if (data.userSelectedType === "R") {
+            // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+            // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+            if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
+              this.editedItem.extraAddr += data.bname;
+            }
+            // 건물명이 있고, 공동주택일 경우 추가한다.
+            if (data.buildingName !== "" && data.apartment === "Y") {
+              this.editedItem.extraAddr +=
+                this.editedItem.extraAddr !== ""
+                  ? `, ${data.buildingName}`
+                  : data.buildingName;
+            }
+            // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+            if (this.editedItem.extraAddr !== "") {
+              this.editedItem.extraAddr = `(${this.editedItem.extraAddr})`;
+            }
+          } else {
+            this.editedItem.extraAddr = "";
+          }
+          // 우편번호를 입력한다.
+          this.editedItem.postcode = data.zonecode;
+
+          console.log(this.editedItem.postcode, this.editedItem.addr, this.editedItem.extraAddr);
+        },
+      }).open();
+    },
     ...mapActions([ 'timeoutSession' ]),
     getItems () {
       const path = `/api/domaininfo`
@@ -253,7 +322,9 @@ export default {
         id: this.editedItem.id,
         saupjaid: this.editedItem.saupjaid,
         saupjaname: this.editedItem.saupjaname,
+        postcode: this.editedItem.postcode,
         addr: this.editedItem.addr,
+        extraAddr: this.editedItem.extraAddr,
         tel: this.editedItem.tel,
         fax: this.editedItem.fax
       }

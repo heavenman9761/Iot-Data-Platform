@@ -32,7 +32,9 @@ router.post('/addDevice', isLoggedIn, async (req, res, next) => {
       ae_name: ae_name,
     });
     gValue.setDeviceInfos();
-    gValue.createAE(device.ae_name);
+    if (device.ae_name) {
+      gValue.createAE(device.ae_name);
+    }
     res.status(200).json(device);
 
   } catch (err) {

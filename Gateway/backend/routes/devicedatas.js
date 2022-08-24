@@ -13,7 +13,7 @@ router.post('/data', async (req, res, next) => {
     datas.forEach(async (data) => {
       try {
         gValue.getDeviceInfos().forEach((deviceInfo, index, array) => {
-          if (deviceInfo.addr === data.id) {
+          if (deviceInfo.name === data.name) {
             const dataKeys = deviceInfo.datakeys;
             const dataKeyList = dataKeys.split(';');
             dataKeyList.forEach(async (item, index, arr) => {
@@ -34,19 +34,21 @@ router.post('/data', async (req, res, next) => {
               }
             });
 
-            const onem2mKeys = deviceInfo.onem2mkeys;
-            const onem2mKeyList = onem2mKeys.split(';');
-            var obj = {};
+            if (deviceInfo.onem2mKeys) {
+              const onem2mKeys = deviceInfo.onem2mkeys;
+              const onem2mKeyList = onem2mKeys.split(';');
+              var obj = {};
 
-            onem2mKeyList.forEach(async (item, index, arr) => {
-              if (Object.keys(data).includes(item)) {
-                // 
-                // console.log(item, data[item]);
-                obj[item] = data[item];
+              onem2mKeyList.forEach(async (item, index, arr) => {
+                if (Object.keys(data).includes(item)) {
+                  // 
+                  // console.log(item, data[item]);
+                  obj[item] = data[item];
+                }
+              });
+              if (JSON.stringify(obj) != '{}') {
+                gValue.createContentInstance(deviceInfo.ae_name, JSON.stringify(obj))
               }
-            });
-            if (JSON.stringify(obj) != '{}') {
-              gValue.createContentInstance(deviceInfo.ae_name, JSON.stringify(obj))
             }
           }
         });
