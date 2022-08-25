@@ -33,7 +33,7 @@ app.use(require('connect-history-api-fallback')());
 passportConfig();
 app.use(session({
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   secret: process.env.COOKIE_SECRET,
   cookie: {
     httpOnly: true,
@@ -54,13 +54,24 @@ sequelize.sync({ force: false })
   .then(() => {
     gValue.setDomainInfo();
     gValue.setDeviceTypes();
-    gValue.setDeviceAddrs();
+    gValue.setDeviceInfos();
     gValue.setOneM2MInfo();
     console.log('데이타베이스 연결 성공');
   })
   .catch((err) => {
     console.error(err);
   });
+
+setTimeout(() => {
+  const deviceInfos = gValue.getDeviceInfos()
+  if (deviceInfos) {
+    deviceInfos.forEach((deviceInfo, index, item) => {
+      if (deviceInfo.ae_name != "") {
+        gValue.createAE(deviceInfo.ae_name);
+      }
+    })
+  }
+}, 2000);
 
 app.use(logger('dev'));
 app.use(express.json());

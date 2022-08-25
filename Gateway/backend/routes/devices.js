@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/', isLoggedIn, async (req, res, next) => {
   try {
     const devices = await Device.findAll({
-      where: {deletedAt: null}
+      where: { deletedAt: null }
     });
     res.status(200).json(devices);
   } catch (err) {
@@ -21,28 +21,35 @@ router.get('/', isLoggedIn, async (req, res, next) => {
 });
 
 router.post('/addDevice', isLoggedIn, async (req, res, next) => {
-  const { devicetype, name, address, datakeys, onem2mkeys, ae_name, ae_nickname } = req.body;
-    try {
-      const device = await Device.create({
-        devicetype: devicetype,
-        name: name,
-        address: address,
-        datakeys: datakeys,
-        onem2mkeys: onem2mkeys,
-        ae_name: ae_name,
-      });
-      gValue.setDeviceAddrs();
-      res.status(200).json(device);
-
-    } catch (err) {
-        console.error(err);
-        next(err);
+  const { devicetype, name, address, datakeys, onem2mkeys, ae_name } = req.body;
+  try {
+    const device = await Device.create({
+      devicetype: devicetype,
+      name: name,
+      address: address,
+      datakeys: datakeys,
+      onem2mkeys: onem2mkeys,
+      ae_name: ae_name,
+    });
+    gValue.setDeviceInfos();
+    if (device.ae_name) {
+      gValue.createAE(device.ae_name);
     }
+    res.status(200).json(device);
+
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 router.put('/editDevice', isLoggedIn, async (req, res, next) => {
   try {
     const { id, devicetype, name, address, datakeys, onem2mkeys, ae_name } = req.body;
+
+    const oldDevice = await Device.findOne({ where: { id: id } });
+    const oldAeName = oldDevice.ae_name;
+
     const device = await Device.update({
       devicetype: devicetype,
       name: name,
@@ -53,12 +60,21 @@ router.put('/editDevice', isLoggedIn, async (req, res, next) => {
     }, {
       where: { id: id }
     });
-    gValue.setDeviceAddrs();
+
+    gValue.setDeviceInfos(); //테스트해보기
+    if (ae_name === "") {
+      gValue.deleteAE(oldAeName);
+    } else {
+      if (oldAeName != ae_name) {
+        gValue.resetAE(device.ae_name);
+      }
+    }
+
     res.status(200).json(device);
 
   } catch (err) {
-      console.error(err);
-      next(err);
+    console.error(err);
+    next(err);
   }
 });
 
@@ -66,7 +82,9 @@ router.delete('/remove/:deviceID', isLoggedIn, async (req, res, next) => {
   const id = req.params.deviceID;
   try {
     const device = await Device.destroy({ where: { id: id } });
-    gValue.setDeviceAddrs();
+    gValue.setDeviceInfos();
+    gValue.deleteAE(device.ae_name);
+    
     res.status(200).json(device);
   } catch (err) {
     console.error(err);

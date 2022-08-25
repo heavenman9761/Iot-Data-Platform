@@ -83,6 +83,7 @@
                               <v-text-field
                                 v-model="editedItem.name"
                                 label="Name"
+                                :rules="nameRules"
                                 required
                               ></v-text-field>
                             </v-col>
@@ -93,7 +94,6 @@
                                 v-model="editedItem.address"
                                 :rules="macAddressRules"
                                 label="MAC address"
-                                required
                               ></v-text-field>
                             </v-col>
                           </v-row>
@@ -137,7 +137,6 @@
                           :disabled="
                             editedItem.devicetype === '' ||
                               editedItem.name === '' ||
-                              editedItem.address.length < 17 ||
                               editedItem.datakeys === ''
                           "
                         >
@@ -197,13 +196,21 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'Devices',
-  data () {
+  data() {
     return {
       macAddressRules: [
-        v => !!v || 'MacAddress is required',
-        v =>
-          /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/.test(v) ||
-          'MacAddress must be valid'
+        // v => !v || 'MacAddress is required',
+        // v =>
+        //   /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/.test(v) ||
+        //   'MacAddress must be valid'
+      ],
+      nameRules: [
+        // v => !!v || 'Name is required',
+        // v => /^[0-9a-zA-Z]$/.text(v) ||
+        // 'Name is required'
+        v => !!v || '이름은 필수 입력사항입니다.',
+        v => !(v && v.length >= 30) || '이름은 30자 이상 입력할 수 없습니다.',
+        // v => !/[~!@#$%^&*()_+|<>?:{}]/.test(v) || '이름에는 특수문자를 사용할 수 없습니다.'
       ],
       dialog: false,
       dialogDelete: false,

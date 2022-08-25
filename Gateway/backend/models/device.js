@@ -12,13 +12,13 @@ module.exports = class Device extends Sequelize.Model {
         type: Sequelize.STRING(40),
         allowNull: false,
         require: true,
-        unique: true,
+        unique: true
       },
       address: {
         type: Sequelize.STRING(17),
         allowNull: false,
         require: false,
-        defaultValue: '',
+        defaultValue:'',
       },
       datakeys: {
         type: Sequelize.STRING(100),
@@ -28,12 +28,12 @@ module.exports = class Device extends Sequelize.Model {
       onem2mkeys: {
         type: Sequelize.STRING(100),
         allowNull: false,
-        defaultValue: '',
+        defaultValue:'',
       },
       ae_name: {
         type: Sequelize.STRING(40),
         allowNull: false,
-        defaultValue: ''
+        defaultValue:'',
       },
     }, {
       sequelize,
