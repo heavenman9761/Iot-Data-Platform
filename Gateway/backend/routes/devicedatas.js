@@ -34,7 +34,7 @@ router.post('/data', async (req, res, next) => {
               }
             });
 
-            if (deviceInfo.onem2mKeys) {
+            if (deviceInfo.onem2mKeys != '') {
               const onem2mKeys = deviceInfo.onem2mkeys;
               const onem2mKeyList = onem2mKeys.split(';');
               var obj = {};
