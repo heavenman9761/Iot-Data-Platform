@@ -7,31 +7,35 @@ const router = express.Router();
 router.post('/data', async (req, res, next) => {
     // console.log(req.body);
     if (gValue.getDeviceTypes().indexOf(req.body.type) > -1 && gValue.getSaupjaId() != '' && gValue.getSaupjaName() != '') {
-        const datas = req.body.devices;
+      const datas = req.body.devices;
+      // console.log(datas);
         datas.forEach(async (data) => {
             try {
                 gValue.getDeviceAddrs().forEach((value, index, array) => {
-                    if (value.addr === data.id) {
-                        const dataKeys = value.datakeys;
-                        const dataKeyList = dataKeys.split(';');
-                        dataKeyList.forEach(async (item, index, arr) => {
-                            if (Object.keys(data).includes(item)) {
-                                try {
-                                    const d = await DeviceData.create({
-                                        saupjaid: gValue.getSaupjaId(),
-                                        saupjaname: gValue.getSaupjaName(),
-                                        devicename: data.name,
-                                        address: data.id,
-                                        field: item,
-                                        data: data[item]
-                                    });
-                                } catch (err) {
-                                    console.error(err);
-                                    next(err);
-                                }
-                            }
-                        });
+                  if (value.addr === data.id) {
+                    const dataKeys = value.datakeys;
+                    // console.log(dataKeys);
+
+                    const dataKeyList = dataKeys.split(';');
+                    dataKeyList.forEach(async (item, index, arr) => {
+                      if (Object.keys(data).includes(item)) {
+                        try {
+                          const d = await DeviceData.create({
+                            saupjaid: gValue.getSaupjaId(),
+                            saupjaname: gValue.getSaupjaName(),
+                            devicename: data.name,
+                            address: data.id,
+                            field: item,
+                            data: data[item]
+                          });
+                        } catch (err) {
+                          console.error(err);
+                          next(err);
+                        }
+                      }
+                    });
                       
+                    if (value.onem2mkeys) {
                       const onem2mKeys = value.onem2mkeys;
                       const onem2mKeyList = onem2mKeys.split(';');
                       const oneM2MInfo = gValue.getOneM2MInfo();
@@ -41,6 +45,7 @@ router.post('/data', async (req, res, next) => {
                         }
                       });
                     }
+                  }
                 });
             } catch (err) {
                 console.error(err);

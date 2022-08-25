@@ -39,7 +39,7 @@ app.use(session({
     httpOnly: true,
     secure: false,
     maxAge: 1000 * 60 * 60,
-    rolling: true //페이지 이동이나 리로드시 기간 연장
+    rolling: true //페이지 이동이나 리로드시 기간 연장, saveUninitialized: false로 셋팅해야 함.
   },
 }));
 

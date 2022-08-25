@@ -17,17 +17,20 @@ module.exports = class DomainInfo extends Sequelize.Model {
             addr: {
                 type: Sequelize.STRING(100),
                 require: false,
-                allowNull: false,
+              allowNull: false,
+                defaultValue: '',
             },
             tel: {
                 type: Sequelize.STRING(15),
                 require: false,
-                allowNull: false,
+              allowNull: false,
+                defaultValue:'',
             },
             fax: {
                 type: Sequelize.STRING(15),
                 require: false,
-                allowNull: false,
+              allowNull: false,
+                defaultValue: ''
             }
         }, {
             sequelize,
