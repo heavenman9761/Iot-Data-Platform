@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const moment = require('moment') 
 
 module.exports = class DeviceData extends Sequelize.Model {
     static init(sequelize) {
@@ -32,6 +33,18 @@ module.exports = class DeviceData extends Sequelize.Model {
                 type: Sequelize.STRING(20),
                 allowNull: false,
                 require: true,
+            },
+            createdAt: {
+              type: Sequelize.DATE,
+              get() {
+                return moment(this.getDataValue('createdAt'), 'YYYY-MM-DD HH:mm:ss').add(9, 'h').format('YYYY-MM-DD HH:mm:ss')
+              }
+            },
+            updatedAt: {
+                type: Sequelize.DATE,
+                get() {
+                  return moment(this.getDataValue('updatedAt'), 'YYYY-MM-DD HH:mm:ss').add(9, 'h').format('YYYY-MM-DD HH:mm:ss')
+                }
             }
         }, {
             sequelize,

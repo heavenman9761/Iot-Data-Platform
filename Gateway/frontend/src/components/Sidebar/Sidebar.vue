@@ -111,6 +111,7 @@ import {mapActions, mapState} from 'vuex'
           { title: 'Type 관리', icon: 'mdi-car-connected', link: '/devicetypes' },
           { title: 'Domain 관리', icon: 'mdi-animation', link: '/domaininfo' },
           { title: 'oneM2M 서버 설정', icon: 'mdi-access-point-network', link: '/onem2mserver' },
+          { title: 'Data 조회', icon: 'mdi-access-point-network', link: '/devicedatas' },
           { title: 'Dashboard', icon: 'mdi-home', link: '/dashboard' },
           // { title: 'Typography', icon: 'mdi-format-size', link: '/typography' },
           // { title: 'Tables', icon: 'mdi-grid-large', link: '/tables' },
