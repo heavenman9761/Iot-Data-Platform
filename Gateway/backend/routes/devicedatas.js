@@ -85,6 +85,8 @@ router.post('/getdata2', async function (req, res, next) {
   const datakey = req.body.datakey;
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
+  const limit = req.body.limit;
+
   const TODAY_START = new Date().setHours(-9, 0, 0, 0)
   const NOW = new Date()
 
@@ -105,7 +107,7 @@ router.post('/getdata2', async function (req, res, next) {
       },
       order: [['createdAt', 'DESC']],
       attributes: ['createdAt', 'devicename', 'address', 'field', 'data'],
-      limit: 100
+      limit: parseInt(limit)
     });
     res.json(d);
   } catch (err) {

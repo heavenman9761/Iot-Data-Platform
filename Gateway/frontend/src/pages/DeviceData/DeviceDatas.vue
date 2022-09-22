@@ -14,14 +14,14 @@
                   @change="updateDatakeys(`${deviceNameListSelect}`)"
                 ></v-combobox>
               </v-col>
-              <v-col cols="2.75">
+              <v-col cols="2">
                 <v-combobox
                   v-model="deviceDatakeyListSelect"
                   :items="deviceDatakeyList"
                   label="Select Data"
                 ></v-combobox>
               </v-col>
-              <v-col cols="2.75">
+              <v-col cols="2">
                 <v-menu
                   ref="startDateMenu"
                   v-model="startDateMenu"
@@ -64,7 +64,7 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-              <v-col cols="2.75">
+              <v-col cols="2">
                 <v-menu
                   ref="endDateMenu"
                   v-model="endDateMenu"
@@ -107,7 +107,18 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-              <v-col cols="1">
+              <v-col cols="2">
+                <v-text-field
+                    light
+                    id="limit"
+                    ref="limit"
+                    v-model="limit"
+                    :rules="numberRules"
+                    value="100"
+                    label="Count"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2">
                 <v-btn
                   color="primary"
                   dark
@@ -169,7 +180,7 @@
                   <apexchart 
                     ref="chart"
                     v-if="apexLoading"
-                    type="line"
+                    type="area"
                     height="350"
                     :options="chartOptions" 
                     :series="series"
@@ -214,10 +225,10 @@ export default {
             }
           },
           toolbar: {
-            show: false
+            show: true
           },
           zoom: {
-            enabled: false
+            enabled: true
           }
         },
         dataLabels: {
@@ -234,6 +245,9 @@ export default {
         markers: {
           size: 0
         },
+        xaxis: {
+          // range: 200
+        },
         // xaxis: {
         //   type: 'datetime',
         //   // range: XAXISRANGE,
@@ -242,9 +256,22 @@ export default {
         //   max: 100
         // },
         legend: {
-          show: false
+          show: true
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.7,
+            opacityTo: 0.9,
+            stops: [0, 100]
+          }
         },
       },
+      limit: 100,
+      numberRules: [
+        v => Number.isInteger(Number(v)) || "The value must be an integer number",
+      ],
       items: [],
       deviceList: [],
       deviceNameList: [],
@@ -317,17 +344,22 @@ export default {
     },
 
     getDeviceData() {
+      if (!this.limit) {
+        this.limit = 10
+      }
       const obj = {
         device: this.deviceNameListSelect,
         datakey: this.deviceDatakeyListSelect,
         startDate: this.startDate,
         endDate: this.endDate,
+        limit: this.limit
       }
       const path = `/api/devicedata/getdata2`
       axios
         .post(path, obj)
         .then(res => {
           if (res.status === 200) {
+            this.apexLoading = false;
             this.items = res.data
 
             this.chartDatas = []
@@ -340,10 +372,19 @@ export default {
             this.chartDatas.reverse()
             this.chartLabels.reverse()
 
+            this.chartOptions.xaxis = {
+              categories: this.chartLabels,
+              range: res.data.length,
+              min: 0,
+              max: res.data.length
+            }
+            this.series = [{
+              data: []
+            }]
             this.series = [{
               data: this.chartDatas
             }]
-            this.chartOptions.labels = this.chartLabels
+            // this.chartOptions.labels = this.chartLabels
 
             this.apexLoading = true;
           }
@@ -353,12 +394,12 @@ export default {
         })
     },
 
-    groupBy(xs, key) {
-      return xs.reduce(function(rv, x) {
-        (rv[x[key]] = rv[x[key]] || []).push(x);
-        return rv;
-      }, {});
-    },
+    // groupBy(xs, key) {
+    //   return xs.reduce(function(rv, x) {
+    //     (rv[x[key]] = rv[x[key]] || []).push(x);
+    //     return rv;
+    //   }, {});
+    // },
 
     errorHandler (error) {
       console.log(error)
