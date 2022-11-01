@@ -5,6 +5,7 @@ const DomainInfo = require('./models/domaininfo')
 const DeviceType = require('./models/devicetype');
 const Device = require('./models/device');
 const Onem2mServer = require('./models/onem2mserver')
+const SetNoti = require('./models/setnoti')
 
 var Promise = require('promise');
 
@@ -12,6 +13,7 @@ var saupjaId = '';
 var saupjaName = '';
 var deviceTypes = [];
 var deviceInfos = [];
+var notiInfos = [];
 var onem2mInfo = null;
 var requestNr = 0;
 
@@ -109,6 +111,33 @@ async function setDeviceInfos(async) {
 
 function getDeviceInfos() {
   return deviceInfos;
+}
+
+function getNotiInfo() {
+  return notiInfos;
+}
+
+async function setNotiInfo(async) {
+  try {
+    notiInfos = [];
+    const noti = await SetNoti.findAll({});
+    if (noti) {
+      noti.forEach((value, index, item) => {
+        const d = {
+          device: noti[index].dataValues.device,
+          datakey: noti[index].dataValues.datakey,
+          threshold: noti[index].dataValues.threshold,
+          action: noti[index].dataValues.action,
+          realchart: noti[index].dataValues.realchart,
+        }
+        notiInfos.push(d);
+      });
+    }
+    
+    console.log('setNotiInfo()', notiInfos);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 function createAE(name) {
@@ -272,6 +301,7 @@ function createDataContainer(name) {
         } else {
           console.log("createDataContainer() [RESPONSE] - success", response.statusCode);
           console.log(body);
+          createContentInstance(name, '')
           conf.ctnPrepared = true;
         }
       });
@@ -311,7 +341,7 @@ function createContentInstance(name, data) {
         if (error) {
           console.log("createContentInstance() - failure", error);
         } else {
-          console.log("createContentInstance() - success", response.statusCode);
+          console.log("createContentInstance() - success", response.statusCode, requestNr);
           console.log(body);
         }
       });
@@ -325,6 +355,7 @@ module.exports = {
   deviceInfos,
   deviceTypes,
   onem2mInfo,
+  notiInfos,
   setDomainInfo,
   setDeviceTypes,
   setDeviceInfos,
@@ -338,4 +369,6 @@ module.exports = {
   resetAE,
   deleteAE,
   createContentInstance,
+  getNotiInfo,
+  setNotiInfo,
 }

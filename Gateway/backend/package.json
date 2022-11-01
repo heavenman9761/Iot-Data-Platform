@@ -25,6 +25,7 @@
     "pug": "2.0.0-beta11",
     "request": "^2.88.2",
     "sequelize": "^6.21.3",
-    "sequelize-cli": "^6.4.1"
+    "sequelize-cli": "^6.4.1",
+    "socket.io": "^4.5.2"
   }
 }

@@ -5,6 +5,7 @@ import Layout from '@/components/Layout/Layout';
 
 // Pages
 import Dashboard from '@/pages/Dashboard/Dashboard';
+import ExamDashboard from '@/pages/ExamDashboard/ExamDashboard';
 import Typography from '@/pages/Typography/Typography'
 import Tables from '@/pages/Tables/Basic'
 import Notifications from '@/pages/Notifications/Notifications'
@@ -18,6 +19,7 @@ import DeviceTypes from "@/pages/DeviceTypes/DeviceTypes";
 import DomainInfo from "@/pages/DomainInfo/DomainInfo";
 import Onem2mServer from "@/pages/Onem2mServer/Onem2mServer";
 import DeviceDatas from "@/pages/DeviceData/DeviceDatas";
+import SetNoti from "@/pages/SetNotis/SetNotis";
 
 Vue.use(Router);
 
@@ -60,9 +62,19 @@ export default new Router({
         component: DeviceDatas
       },
       {
+        path: 'setNotis',
+        name: 'SetNotis',
+        component: SetNoti
+      },
+      {
         path: 'dashboard',
         name: 'Dashboard',
         component: Dashboard,
+      },
+      {
+        path: 'examdashboard',
+        name: 'ExamDashboard',
+        component: ExamDashboard,
       },
       {
         path: 'typography',

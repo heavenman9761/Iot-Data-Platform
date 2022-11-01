@@ -7,7 +7,10 @@ const mongodbconnect = require('./schemas/xindex');
 const passport = require('passport');
 const session = require('express-session');
 const dotenv = require('dotenv');
-const { sequelize } = require('./models')
+const { sequelize, SetNoti } = require('./models')
+var http = require('http');
+
+const port = 6007
 
 dotenv.config();
 
@@ -20,6 +23,7 @@ const deviceDataRouter = require('./routes/devicedatas');
 const deviceTypeRouter = require('./routes/devicetypes');
 const domainInfoRouter = require('./routes/domaininfos');
 const onem2mServerRouter = require('./routes/onem2mserver')
+const setNotiRouter = require('./routes/setnoti')
 
 const passportConfig = require('./passport');
 const gValue = require('./globalv');
@@ -56,6 +60,7 @@ sequelize.sync({ force: false })
     gValue.setDeviceTypes();
     gValue.setDeviceInfos();
     gValue.setOneM2MInfo();
+    gValue.setNotiInfo();
     console.log('데이타베이스 연결 성공');
   })
   .catch((err) => {
@@ -79,6 +84,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var server = http.createServer(app);
+const io = require('socket.io')(server,{
+  cors: {
+    origin: `http://127.0.0.1:${port}`,
+    methods: ["GET", "POST"],
+    credentials: true,
+    transports: ['websocket', 'polling'],
+  },
+  allowEIO3: true
+})
+
+app.use(function(request, response, next){
+  request.io = io;
+  next();
+});
+
 app.use('/', indexRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
@@ -88,6 +109,10 @@ app.use('/api/devicedata', deviceDataRouter);
 app.use('/api/devicetypes', deviceTypeRouter);
 app.use('/api/domaininfo', domainInfoRouter);
 app.use('/api/onem2mserver', onem2mServerRouter);
+app.use('/api/setnoti', setNotiRouter)
+
+
+
 // mongodbconnect();
 
 // catch 404 and forward to error handler
@@ -106,4 +131,8 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
+app.set('port', 6007);
+
 module.exports = app;
+module.exports = http;
+module.exports = server;

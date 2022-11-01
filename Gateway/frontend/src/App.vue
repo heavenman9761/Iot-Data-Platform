@@ -11,7 +11,11 @@ export default {
     }
   },
   created() {
-    window.addEventListener('beforeunload', this.removeUser)  
+    window.addEventListener('beforeunload', this.removeUser),
+    this.$socket.on('deviceNoti', (data) => {
+      console.log('1', data)
+      
+    })  
   }
 };
 </script>

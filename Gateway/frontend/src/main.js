@@ -8,6 +8,12 @@ import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import VuetifyDialog from 'vuetify-dialog'
 import 'vuetify-dialog/dist/vuetify-dialog.css'
+import VueSocketIO from 'socket.io-client'
+
+// var socket = VueSocketIO('http://127.0.0.1:6008', {transports: ['websocket', 'polling']})
+var socket = VueSocketIO('http://127.0.0.1:6007')
+Vue.prototype.$socket = socket
+
 Vue.use(Toast, {
   transition: "Vue-Toastification__bounce",
   maxToasts: 20,

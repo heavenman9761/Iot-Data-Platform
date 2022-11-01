@@ -182,6 +182,46 @@
                     v-if="apexLoading"
                     type="area"
                     height="350"
+                    :options="mock.mainChartOptions" 
+                    :series="series"
+                  ></apexchart>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col cols="12">
+          <v-card class="mx-1 mb-1">
+            <v-card-title class="pa-6 pb-0">
+              <v-row no-gutters>
+                <v-col
+                  cols="7"
+                  sm="4"
+                  md="4"
+                  lg="5"
+                  class="d-flex align-center"
+                >
+                  <p>Real Chart</p>
+                </v-col>
+                <v-col
+                  sm="6"
+                  md="6"
+                  lg="5"
+                  class="d-none d-sm-flex align-center"
+                >
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <v-row>
+                <v-col>
+                  <apexchart 
+                    ref="realchart"
+                    type="line"
+                    height="350"
                     :options="chartOptions" 
                     :series="series"
                   ></apexchart>
@@ -199,6 +239,26 @@
 import axios from 'axios'
 import { mapActions } from 'vuex'
 import VueApexCharts from "vue-apexcharts";
+import mock from "./mock";
+
+var realData = [];
+const realChartCount = 100;
+
+function getNewSeries(yrange) {
+  var newDate = new Date();
+  var newTime = newDate.toLocaleTimeString();
+
+  realData.push({
+    x: newTime,
+    y: yrange //Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
+  });
+}
+
+function resetData() {
+  if (realData.length > realChartCount) {
+    realData = realData.slice(realData.length - realChartCount, realData.length);
+  }
+}
 
 export default {
   name: 'Devices',
@@ -210,64 +270,7 @@ export default {
   },
   data() {
     return {
-      series: [{
-        data: []
-      }],
-      chartOptions: {
-        chart: {
-          id: 'chart',
-          // type: 'line',
-          animations: {
-            enabled: false,
-            easing: 'linear',
-            dynamicAnimation: {
-              speed: 1000
-            }
-          },
-          toolbar: {
-            show: true
-          },
-          zoom: {
-            enabled: true
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        labels:[],
-        stroke: {
-          curve: 'smooth'
-        },
-        title: {
-          // text: 'Dynamic Updating Chart',
-          align: 'left'
-        },
-        markers: {
-          size: 0
-        },
-        xaxis: {
-          // range: 200
-        },
-        // xaxis: {
-        //   type: 'datetime',
-        //   // range: XAXISRANGE,
-        // },
-        // yaxis: {
-        //   max: 100
-        // },
-        legend: {
-          show: true
-        },
-        fill: {
-          type: 'gradient',
-          gradient: {
-            shadeIntensity: 1,
-            opacityFrom: 0.7,
-            opacityTo: 0.9,
-            stops: [0, 100]
-          }
-        },
-      },
+      mock,
       limit: 100,
       numberRules: [
         v => Number.isInteger(Number(v)) || "The value must be an integer number",
@@ -284,7 +287,8 @@ export default {
       endtDateMenu: false,
       apexLoading: false,
       chartDatas: [],
-      chartLabels:[],
+      chartLabels: [],
+      timer: null, 
       headers: [
         {
           text: 'Device Name',
@@ -297,12 +301,72 @@ export default {
         { text: 'Value', value: 'data' },
         { text: 'Update Time', value: 'createdAt' },
       ],
+      series: [{ data: realData.slice() }],
+      chartOptions: {
+        chart: {
+          id: 'realtime',
+          animations: {
+            enabled: true,
+            easing: "linear",
+            dynamicAnimation: {
+              speed: 500
+            }
+          },
+          toolbar: {
+            show: false
+          },
+          zoom: {
+            enabled: false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: "smooth"
+        },
+        markers: {
+          size: 0
+        },
+        xaxis: {
+          // type: "datetime",
+          range: realChartCount - 1 // 777600000
+        },
+        legend: {
+          show: false
+        }
+      }
     }
   },
   created () {
     this.getItems()
   },
+  beforeDestroy() {
+    this.$socket.off('realData');
+    clearInterval(this.timer);        
+    this.timer = null;
+    realData = [];
+  },
+  mounted() {
+    this.$socket.on('realData', (p) => {    
+      console.log(p);
+      if (p.schema.realchart) {
+        getNewSeries(p.realData);
+        this.$refs.realchart.updateSeries([{ data: realData }]);
+      }
+    });
+    this.timer = setInterval(() => {
+      resetData();
+      this.$refs.realchart.updateSeries([{ data: realData }], false, true);
+    }, 60*1000)
+  },
   methods: {
+    sendMessage() {
+      // this.$socket.emit('chat', {
+      //   message: 'Vuejs에서 보낸 메세지',
+      //   socketId: this.$socket.id
+      // })
+    },
     ...mapActions(['timeoutSession']),
 
     getItems() {
@@ -372,7 +436,7 @@ export default {
             this.chartDatas.reverse()
             this.chartLabels.reverse()
 
-            this.chartOptions.xaxis = {
+            this.mock.mainChartOptions.xaxis = {
               categories: this.chartLabels,
               range: res.data.length,
               min: 0,

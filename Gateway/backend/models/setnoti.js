@@ -1,46 +1,49 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Device extends Sequelize.Model {
+module.exports = class SetNoti extends Sequelize.Model {
   static init(sequelize) {
     return super.init({
-      devicetype: {
+      device: {
         type: Sequelize.STRING(40),
         allowNull: false,
         require: true
       },
-      name: {
+      datakey: {
         type: Sequelize.STRING(40),
         allowNull: false,
         require: true,
-        unique: true
       },
-      address: {
-        type: Sequelize.STRING(17),
+      threshold: {
+        type: Sequelize.INTEGER,
+        require: true,
+        defaultValue:0,
+      },
+      morethan: {
+        type: Sequelize.BOOLEAN,
+        require: true,
+        defaultValue: 1
+      },
+      action: {
+        type: Sequelize.STRING(4),
         allowNull: false,
-        require: false,
         defaultValue:'',
       },
-      datakeys: {
-        type: Sequelize.STRING(10000),
+      realchart: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      toserver: {
+        type: Sequelize.STRING(15),
         allowNull: false,
+        defaultValue: '',
         require: true
-      },
-      onem2mkeys: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-        defaultValue:'',
-      },
-      ae_name: {
-        type: Sequelize.STRING(40),
-        allowNull: false,
-        defaultValue:'',
       },
     }, {
       sequelize,
       timestamps: true,//createdAt, updateAt, deletedAt 칼럼도 생성됨
       underscored: false,
-      modelName: 'Device',
-      tableName: 'Devices',
+      modelName: 'SetNoti',
+      tableName: 'SetNotis',
       paranoid: true,//createdAt, updateAt, deletedAt 칼럼도 생성됨
       charset: 'utf8',
       collate: 'utf8_general_ci',

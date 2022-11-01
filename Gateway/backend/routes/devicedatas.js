@@ -2,63 +2,79 @@ const express = require('express');
 const DeviceData = require('../models/devicedata');
 const Sequelize = require('sequelize');
 const gValue = require('../globalv');
+
 const Op = Sequelize.Op
 
 const router = express.Router();
 
+var lastDate = new Date();
+
 router.post('/data', async (req, res, next) => {
-  // console.log(req.body.type, gValue.getDeviceTypes().indexOf(req.body.type));
+  const newDate = new Date();
+  // const datas = req.body;
+  // console.log(datas);
   if (gValue.getDeviceTypes().indexOf(req.body.type) > -1 && gValue.getSaupjaId() != '' && gValue.getSaupjaName() != '') {
     const datas = req.body.devices;
-
-    // console.log(datas);
-    datas.forEach(async (data) => {
-      try {
-        gValue.getDeviceInfos().forEach((deviceInfo, index, array) => {
-          if (deviceInfo.name === data.name) {
-            const dataKeys = deviceInfo.datakeys;
-            const dataKeyList = dataKeys.split(';');
-            dataKeyList.forEach(async (item, index, arr) => {
-              if (Object.keys(data).includes(item)) {
-                try {
-                  const d = await DeviceData.create({
-                    saupjaid: gValue.getSaupjaId(),
-                    saupjaname: gValue.getSaupjaName(),
-                    devicename: data.name,
-                    address: data.id,
-                    field: item,
-                    data: data[item]
-                  });
-                } catch (err) {
-                  console.error(err);
-                  next(err);
-                }
-              }
-            });
-
-            if (deviceInfo.onem2mKeys != '') {
-              const onem2mKeys = deviceInfo.onem2mkeys;
-              const onem2mKeyList = onem2mKeys.split(';');
-              var obj = {};
-
-              onem2mKeyList.forEach(async (item, index, arr) => {
+    if (newDate.getTime() - lastDate.getTime() > 2000) {
+      datas.forEach(async (data) => {
+        try {
+          gValue.getDeviceInfos().forEach((deviceInfo, index, array) => {
+            if (deviceInfo.name === data.name) {
+              const dataKeys = deviceInfo.datakeys;
+              const dataKeyList = dataKeys.split(';');
+              dataKeyList.forEach(async (item, index, arr) => {
                 if (Object.keys(data).includes(item)) {
-                  //
-                  // console.log(item, data[item]);
-                  obj[item] = data[item];
+                  try {
+                    const d = await DeviceData.create({
+                      saupjaid: gValue.getSaupjaId(),
+                      saupjaname: gValue.getSaupjaName(),
+                      devicename: data.name,
+                      address: data.id,
+                      field: item,
+                      data: data[item]
+                    });
+                  } catch (err) {
+                    console.error(err);
+                    next(err);
+                  }
                 }
               });
-              if (JSON.stringify(obj) != '{}') {
-                gValue.createContentInstance(deviceInfo.ae_name, JSON.stringify(obj))
+
+              if (deviceInfo.onem2mKeys != '') {
+                const onem2mKeys = deviceInfo.onem2mkeys;
+                const onem2mKeyList = onem2mKeys.split(';');
+                var obj = {};
+
+                onem2mKeyList.forEach(async (item, index, arr) => {
+                  if (Object.keys(data).includes(item)) {
+                    obj[item] = data[item];
+                  }
+                });
+                if (JSON.stringify(obj) != '{}') {
+                  gValue.createContentInstance(deviceInfo.ae_name, JSON.stringify(obj))
+                }
               }
             }
-          }
-        });
-      } catch (err) {
-        console.error(err);
-        next(err);
-      }
-    })
+          });
+
+          gValue.getNotiInfo().forEach((notiInfo) => {
+            if (notiInfo.device === data.name) {
+              if (Object.keys(data).includes(notiInfo.datakey)) {
+                const obj = {
+                  'realData': data[notiInfo.datakey],
+                  'schema': notiInfo
+                }
+                req.io.emit('realData', obj)
+              }
+            }
+          });
+        } catch (err) {
+          console.error(err);
+          next(err);
+        }
+      });
+      lastDate = new Date();
+    }
   }
   res.sendStatus(200);
 });
